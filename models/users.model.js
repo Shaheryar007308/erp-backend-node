@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
         required: true
     } , 
 
-    departement :{
+    department :{
         type: String ,
         enum:['CS', 'IT', 'SE', 'NONE'] ,
         required: true

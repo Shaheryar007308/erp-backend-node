@@ -1,39 +1,59 @@
-require('dotenv').config();  // Loads hidden keys out of .env into memory
+require('dotenv').config();
 
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
-const app=express();
 
+const app = express();
+
+// Connect to MongoDB
+require('./config/db');
+
+// Load User model
 require('./models/users.model');
+
+// Load Passport configuration
 require('./config/passport');
 
 
-
-
+// Middleware
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({ extended: false }));
 
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false, // Don't save uninitialized  empty sessions
-    cookie: { 
-        secure: false , // Set to true if using HTTPS
-      httpOnly: true, // Helps prevent XSS attacks
-     maxAge: 1000 * 60 * 60 * 24 // Session expires after 1 day
-    } 
-}))
 
+// Session configuration
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: false,
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60 * 24
+        }
+    })
+);
+
+
+// Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
-const Port = process.env.PORT
 
-app.get('/' , function(req , res){
-    res.send('Welcome to ERP System ');
-})
+// Routes
+app.use('/api/auth', require('./routes/authRoutes'));
 
-app.listen(Port , function(req , res){
-    console.log('Server is running on port : ' , Port);
-})
+
+// Home route
+app.get('/', (req, res) => {
+    res.send('Welcome to ERP System');
+});
+
+
+// Server
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port: ${PORT}`);
+});

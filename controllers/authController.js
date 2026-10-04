@@ -1,13 +1,20 @@
-const passport = require('passport');
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const bcrypt = require('bcrypt');
-
+const passport = require('passport');
 
 // register user
 exports.registerAdmin = async (req, res) => {
   try {
     const { name, email, password, role, department } = req.body;
+
+
+            // Basic required fields
+        if (!name || !email || !password || !role) {
+            return res.status(400).json({
+                message: 'Name, email, password and role are required'
+            });
+        }
 
     if (role === 'DEPT_ADMIN' && (!department || department === 'NONE')) {
       return res.status(400).json({ message: 'Department is required for DEPT_ADMIN role' });
@@ -78,11 +85,26 @@ exports.loginAdmin = async(req , res , next) =>{
 
 //logout request and session destruction
 
-exports.logoutAdmin = (req , res , next) =>{
+// 3. Clear Session and Log Out (FIXED CALLBACK)
+exports.logoutAdmin = (req, res) => {
+    // Check if the user is even logged in first
+    if (!req.isAuthenticated()) {
+        return res.status(400).json({ error: "No active session found to log out from." });
+    }
 
-    req.logout((err)=>{
-        if(err) return res.status(500).json({ error: err.message });
-        return res.status(200).json({ message: 'Logout successful' });
-    })
-
-}
+    // Call req.logout with a simple error handling callback function
+    req.logout((err) => {
+        if (err) {
+            return res.status(500).json({ error: "Logout failed: " + err.message });
+        }
+        
+        // Destroys the express session token completely out of memory
+        req.session.destroy((sessionErr) => {
+            if (sessionErr) {
+                return res.status(500).json({ error: "Failed to destroy login session." });
+            }
+            res.clearCookie('connect.sid'); // Clears the browser/postman cookie completely
+            return res.status(200).json({ message: "Successfully logged out of active server session." });
+        });
+    });
+};

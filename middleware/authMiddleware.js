@@ -23,6 +23,12 @@ exports.authorizeERPAdmin = (req , res , next) =>{
 exports.checkDepartmentAccess = (req, res, next) => {
     const user = req.user;
 
+    if (!user) {
+    return res.status(401).json({
+        message: 'Unauthorized: Please log in first'
+    });
+}
+
     // Rule A: If they are the global ERP Admin, they can bypass this check entirely
     if (user.role === 'ERP_ADMIN') {
         return next();
