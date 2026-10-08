@@ -12,6 +12,8 @@ require('./config/db');
 // Load User model
 require('./models/users.model');
 
+require('./models/student.model');
+
 // Load Passport configuration
 require('./config/passport');
 
@@ -43,6 +45,8 @@ app.use(passport.session());
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
+
+app.use('/api/students', require('./routes/studentRoutes'));
 
 
 // Home route
