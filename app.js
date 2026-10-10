@@ -6,8 +6,14 @@ const passport = require('passport');
 
 const app = express();
 
-// Connect to MongoDB
-require('./config/db');
+
+const connectDB = require('./config/db.js');
+const seedMasterAdmin = require('./config/seeder.js'); 
+
+connectDB().then(() => {
+    seedMasterAdmin(); 
+});
+
 
 // Load User model
 require('./models/users.model');
@@ -48,6 +54,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 
 app.use('/api/students', require('./routes/studentRoutes'));
 
+app.use('/api/admin-management', require('./routes/adminManagementRoutes.js')); 
 
 // Home route
 app.get('/', (req, res) => {

@@ -5,9 +5,12 @@ const studentController = require('../controllers/studentController');
 const { checkDepartmentAccess , ensureAuthenticated  } = require('../middleware/authMiddleware');
 
 router.use(ensureAuthenticated);
+router.use(checkDepartmentAccess);
 
-router.post('/add',  checkDepartmentAccess , studentController.addStudent);
+router.post('/add', checkDepartmentAccess, studentController.createStudent);
 router.get('/list', studentController.getAllStudents);
 router.get('/:id',  studentController.getStudent);
 router.put('/update/:id/:department', checkDepartmentAccess, studentController.updateStudent);
 router.delete('/delete/:id/:department', checkDepartmentAccess, studentController.deleteStudent);
+
+module.exports = router;
